@@ -8,20 +8,15 @@
       lang="en">
 <f:view>
     <h:head>
-        <!--h:outputStylesheet library="css" name="main.css"/-->
-
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="stylesheet" href="main.css"/>
         <title>web3</title>
     </h:head>
     <h:body>
-        <!--h:graphicImage id="background" value="img/mainFon.png"/-->
-        <div id="background">
-
-        </div>
+        <div id="background"></div>
+        <h:link styleClass="link" value="TO START PAGE" outcome="start"/>
         <div id="mainWrapper">
             <h:panelGroup layout="block" id="svgWrapper">
-                <!--svg width="450" height="450" onclick="drawPoint(event.target.x, event.target.y, true)"-->
                 <svg width="450" height="450">
                     <polygon id="triangle" points="150,225 225,225 225,300"
                              fill="rgb(252, 252, 252)" fill-opacity="0.5" stroke="rgba(59, 43, 20, 0.7)"/> <!-- треугольник на графике-->
@@ -73,9 +68,10 @@
 
 
             <h:panelGroup layout="block" id="answer">
-
+                <p id="textBlock"> </p>
             </h:panelGroup>
 
+            <h:outputScript library="js" name="main.js"/>
 
 
             <h:panelGroup id="formWrapper">
@@ -86,59 +82,58 @@
                         <ace:sliderEntry value="#{main.x}" styleClass="slider" id="inputX" stepPercent="${100/12}" length="200px" showLabels="false" min="-6" max="6">
                             <ace:ajax event="slideEnd" execute="@this" render="outX" />
                         </ace:sliderEntry>
-                        <h:outputText id="outX" value="X: #{main.x/2}"/>
+                        <h:outputText id="outX" styleClass="inputLabel" value="X: #{main.x/2}"/>
                     </h:panelGroup>
                     <h3>Выберите Y:</h3>
                     <h:panelGroup id="wrapperY">
-                        <h:inputText value="#{main.y}" styleClass="inputY" id="inputY" required="true">
+                        <h:inputText value="#{main.y}" styleClass="inputY" id="inputY" required="true" maxlength="9">
                             <f:validator validatorId="textValidator"/>
                         </h:inputText>
                     </h:panelGroup>
                     <h3>Выберите R:</h3>
                     <h:panelGroup id="wrapperR">
-                        <ace:sliderEntry id="R" value="#{main.r}" styleClass="slider" stepPercent="${100/6}" length="200px" showLabels="false" min="2" max="8"  >
+                        <ace:sliderEntry id="R" value="#{main.r}" styleClass="slider" stepPercent="${100/6}" length="200px" showLabels="false" min="2" max="8" onSlideEnd="checkR()" >
                             <ace:ajax event="slide" render="outR" execute="R" />
-                            <ace:ajax execute="R" render="tab1" />
-                            <!--ace:ajax execute="r" ren<h:outputScript>
-                                changeRadius('#{main.r}')
-                            </h:outputScript-->
-
+                            <!--ace:ajax event="slide" render="changeR" execute="R" /-->
                         </ace:sliderEntry>
-                        <h:outputText id="outR" value="R: #{main.r/2}"/>
+                        <h:outputText id="outR" styleClass="inputLabel" value="R: #{main.r/2}"/>
                     </h:panelGroup>
+
+
 
                     <h:panelGroup layout="block" styleClass="sendClearWrapper">
                         <h:commandButton id="refresh_table" class="commandButtons" value="Отправить" action="#{main.addPoint}">
-                            <!--h:outputScript>
-                                drawPoint('canvas', '#{150 + elem.x/elem.r*130}','#{150 - elem.y/elem.r*130}', '#{elem.isCheck}');
-                            </h:outputScript-->
+
                         </h:commandButton>
-                        <h:button class="commandButtons" value="Очистить"/>
+                        <h:commandButton id="clearPoints" class="commandButtons" value="Очистить" action="#{main.clearTable}">
+                            <ace:ajax event="click" execute="@this" render="table" />
+                        </h:commandButton>
                     </h:panelGroup>
 
                 </h:form>
 
-    <!-- ___________________________________second form_______________________________________________ -->
+
+                <!-- ___________________________________second form_______________________________________________ -->
 
                 <h:form method="post" id="svgForm">
 
-                    <h:panelGroup style="display:none" id="wrapperXt">
+                    <h:panelGroup style="display: none" id="wrapperXt">
                         <h:inputText value="#{main.svgX}" styleClass="inputY" id="inputXHidden" required="true">
-                            <ace:ajax event="change" render="outXh" execute="inputXHidden" />
+                            <ace:ajax event="click" render="outXh" execute="inputXHidden" />
                         </h:inputText>
                         <h:outputText id="outXh" value="X: #{main.svgX}"/>
                     </h:panelGroup>
 
-                    <h:panelGroup style="display:none" id="wrapperYt">
+                    <h:panelGroup style="display: none" id="wrapperYt">
                         <h:inputText value="#{main.svgY}" styleClass="inputY" id="inputYHidden" required="true">
-                            <!--f:validator validatorId="textValidator"/-->
-                            <ace:ajax event="change" render="outY" execute="inputYHidden" />
+                            <ace:ajax event="click" render="outY" execute="inputYHidden" />
                         </h:inputText>
                         <h:outputText id="outY" value="Y: #{main.svgY}"/>
                     </h:panelGroup>
 
-                    <h:panelGroup style="display:none" layout="block" styleClass="sendClearWrapper">
+                    <h:panelGroup style="display: none" layout="block" styleClass="sendClearWrapper">
                         <h:commandButton id="hidden_refresh_table" class="commandButtons" value="Отправить" action="#{main.addSVGPoint}">
+                            <ace:ajax event="click" render="table" execute="@this" />
                         </h:commandButton>
                         <h:button class="commandButtons" value="Очистить"/>
                     </h:panelGroup>
@@ -148,58 +143,28 @@
                 <!-- ___________________________________second form_______________________________________________ -->
 
 
-                <!--h:form method="post" id="svgForm">
-
-                    <h:inputText value="#{main.x}" styleClass="inputY" id="inputXHidden" onchange="#{main.x}">
-                        <!-f:validator validatorId="textValidator"/-->
-                    <!--/h:inputText>
-
-                    <h:inputText value="#{main.y}" styleClass="inputY" id="inputYHidden" onchange="#{main.y}">
-                        <f:validator validatorId="textValidator"/-->
-                    <!--/h:inputText-->
-
-                    <!--h:inputText value="#{main.r}" styleClass="inputY" id="inputRHidden" onchange="#{main.r}">
-                        <!-f:validator validatorId="textValidator"/-->
-                    <!--/h:inputText>
-
-                    <h:commandButton style="display:none" id="hidden_refresh_table" action="#{main.addPoint}">
-                        <f:ajax execute="form" render="table"/>
-                    </h:commandButton>
-                </h:form-->
-
             </h:panelGroup>>
         </div>
 
-        <h:panelGroup id="tab1" styleClass="tableWrapper">
-            <h:outputScript>
-                <!--drawPoint('#{150 + elem.x/elem.r*130}','#{150 - elem.y/elem.r*130}', '#{elem.res}');-->
-                //changeRadius('#{main.r}');
-                <!--checkDrawnPoint('#{elem.r}');-->
-            </h:outputScript>
-            <ui:repeat value="#{main.points}" var="elem">
-                <h:outputScript>
-                    <!--drawPoint('#{150 + elem.x/elem.r*130}','#{150 - elem.y/elem.r*130}', '#{elem.res}');-->
-                    //showPointsByR('#{elem.r}');
-                    <!--checkDrawnPoint('#{elem.r}');-->
-                </h:outputScript>
-            </ui:repeat>
-        </h:panelGroup>
 
         <h:panelGroup id="table" styleClass="tableWrapper">
+            <!--// тут сделать перерисовку -->
             <!--h:outputScript>
-                changeRadius('#{main.r}');
+                drawPoint('#{225 + 2*main.x/(main.r/2)*75}','#{225 - 2*main.y/(main.r/2)*75}', '#{main.res}');
             </h:outputScript-->
             <ui:repeat value="#{main.points}" var="elem">
                 <h:outputScript>
-                    <!--drawPoint('#{150 + elem.x/elem.r*130}','#{150 - elem.y/elem.r*130}', '#{elem.res}');-->
-                    drawPoint('#{225 + 2*elem.x/elem.r*75}','#{225 - 2*elem.y/elem.r*75}', '#{elem.res}');
-                    <!--checkDrawnPoint('#{elem.r}');-->
+
                 </h:outputScript>
             </ui:repeat>
-            <h:dataTable style="color: rgb(177, 227, 221); border-collapse: collapse; font-family: Comic Sans MS;"
-                         value="#{main.points}" var="point">
+
+            <h:dataTable style="color: rgb(177, 227, 221); border-collapse: collapse; font-family: Comic Sans MS;" value="#{main.points}" var="point">
                 <h:column>
-                    <f:facet name="header" >X</f:facet>
+                    <f:facet name="header" >ID</f:facet>
+                    #{point.id}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">X</f:facet>
                     #{point.x}
                 </h:column>
                 <h:column>
@@ -222,6 +187,5 @@
         </h:panelGroup>
 
     </h:body>
-    <h:outputScript library="js" name="main.js"/>
 </f:view>
 </html>

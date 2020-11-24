@@ -1,30 +1,30 @@
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-@Entity
-@Table(name= "Points")
+@Entity(name = "Points")
+//@Table(name= "Points")
 public class Point implements Serializable {
-    @Column(name = "x", nullable = false)
-    private final float x;
-    @Column(name = "y", nullable = false)
-    private final float y;
-    @Column(name = "r", nullable = false)
-    private final float r;
-    @Column(name = "res", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private float x;
+    private float y;
+    private float r;
     private boolean res;
-    @Column(name = "reqTime", nullable = false)
-    private final LocalDateTime requestTime;
+    private LocalDateTime requestTime;
 
-    Point(float x, float y, float r) {
+    public Point(float x, float y, float r) {
         this.x = x;
         this.y = y;
         this.r = r;
         this.requestTime = LocalDateTime.now();
     }
+
+    public Point() {}
+
+    public Integer getId() { return id; }
 
     public float getX() {
         return this.x;
@@ -38,12 +38,14 @@ public class Point implements Serializable {
         return this.r;
     }
 
-    public void setRes(boolean res) {
-        this.res = res;
-    }
-
     public boolean getRes() {
         return this.res;
+    }
+
+    public void setId(Integer id) { this.id = id; }
+
+    public void setRes(boolean res) {
+        this.res = res;
     }
 
     public LocalDateTime getRequestTime() {
@@ -71,7 +73,7 @@ public class Point implements Serializable {
     }
 
     public int hashCode() {
-        return Objects.hash(new Object[]{this.x, this.y, this.r, this.res, this.requestTime});
+        return Objects.hash(this.x, this.y, this.r, this.res, this.requestTime);
     }
 
     public String toString() {
